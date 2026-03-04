@@ -691,7 +691,7 @@
 
                 prevBtn.disabled = (currentIndex === 0);
                 nextBtn.disabled = !answered[currentIndex];
-                nextBtn.innerText = (currentIndex === questions.length - 1) ? 'НОТИЖЕ →' : 'КЕЛЕСІ →';
+                nextBtn.innerText = (currentIndex === questions.length - 1) ? 'НӘТИЖЕ →' : 'КЕЛЕСІ →';
                 updateProgress();
             }
 
@@ -703,9 +703,9 @@
                 scoreRing.style.background = `conic-gradient(#00ffcc 0deg, #ff3a7a ${deg}deg, #1e1a2f ${deg}deg)`;
 
                 let title, desc;
-                if (percent >= 80) { title = 'СЕН ТУҒАН КӨШБАСШЫ!'; desc = 'Ұжымды сезесің, лидерлік қаныңда.'; }
-                else if (percent >= 60) { title = 'ЖАҚСЫ, БІРАҚ ӘЛЕ БОЛМАДЫ'; desc = 'Бірнеше нәрсені жетілдір.'; }
-                else { title = 'ҚАЙТА ОҚЫ, БРАТ'; desc = 'Теория керек, бірақ сен түзелесің.'; }
+                if (percent >= 80) { title = 'СЕН НАҒЫЗ КӨШБАСШЫСЫҢ!'; desc = 'Ұжымды сезесің, лидерлік қаныңда.'; }
+                else if (percent >= 60) { title = 'ЖАҚСЫ, БІРАҚ ӘЛІ БОЛМАДЫ'; desc = 'Ойлау дағдыңды жетілдір.'; }
+                else { title = 'ҚАЙТА ОҚЫ, БРАТ'; desc = 'Теория керек, бірақ сен үмітсізсің.'; }
 
                 resultTitle.innerText = title;
                 resultDesc.innerText = desc;
@@ -752,3 +752,4 @@
     </script>
 </body>
 </html>
+
