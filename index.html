@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>C++ Quiz — Constructors & Dynamic Init</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --card2:#0f1730;
+      --text:#e9eeff;
+      --muted:#a9b4d6;
+      --accent:#6ee7ff;
+      --good:#53f3a6;
+      --bad:#ff6b8a;
+      --warn:#ffd36e;
+      --shadow: 0 24px 70px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 25% 15%, rgba(110,231,255,.18), transparent 45%),
+                  radial-gradient(900px 600px at 80% 85%, rgba(83,243,166,.14), transparent 50%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* Right-edge logo */
+    .logo-rail{
+      position:fixed;
+      top:50%;
+      right:14px;
+      transform:translateY(-50%);
+      z-index:999;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+      pointer-events:none;
+    }
+    .logo-badge{
+      pointer-events:none;
+      width:90px;height:90px;
+      border-radius:20px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%),
+        linear-gradient(135deg, rgba(110,231,255,.95), rgba(83,243,166,.95));
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+      animation: floaty 3.2s ease-in-out infinite;
+    }
+    .logo-badge:after{
+      content:"";
+      position:absolute; inset:-60px;
+      background: conic-gradient(from 180deg, transparent 0 60%, rgba(255,255,255,.22) 70%, transparent 90%);
+      animation: spin 3.8s linear infinite;
+    }
+    .logo-badge span{
+      position:relative;
+      font-weight:900;
+      letter-spacing:.5px;
+      color:#04101a;
+      text-shadow: 0 1px 0 rgba(255,255,255,.35);
+    }
+    .logo-text{
+      pointer-events:none;
+      writing-mode:vertical-rl;
+      transform: rotate(180deg);
+      font-size:12px;
+      color:rgba(233,238,255,.75);
+      letter-spacing:2px;
+      text-transform:uppercase;
+      opacity:.85;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0) }
+      50%{ transform: translateY(-6px) }
+    }
+    @keyframes spin{
+      to{ transform: rotate(360deg) }
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 64px;
+    }
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom: 18px;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    h1{
+      margin:0;
+      font-size: clamp(22px, 3.4vw, 34px);
+      letter-spacing:.2px;
+      line-height:1.15;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      max-width: 58ch;
+    }
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 8px;
+    }
+    .pill{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      color: rgba(233,238,255,.85);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .topbar{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background: rgba(0,0,0,.18);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .progress{
+      flex:1;
+      height: 10px;
+      background: rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+      position:relative;
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), var(--good));
+      border-radius:999px;
+      transition: width .5s cubic-bezier(.2,.9,.2,1);
+      box-shadow: 0 0 18px rgba(110,231,255,.35);
+    }
+    .meta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color: rgba(233,238,255,.88);
+      font-size: 13px;
+      white-space:nowrap;
+    }
+    .meta strong{ color: var(--accent); }
+
+    .stage{
+      padding: 18px 18px 20px;
+      background:
+        radial-gradient(700px 300px at 20% 10%, rgba(110,231,255,.10), transparent 60%),
+        radial-gradient(600px 260px at 95% 95%, rgba(83,243,166,.10), transparent 60%),
+        rgba(0,0,0,.08);
+    }
+
+    .screen{
+      display:none;
+      transform: translateY(12px);
+      opacity:0;
+      transition: transform .45s ease, opacity .45s ease;
+    }
+    .screen.active{
+      display:block;
+    }
+    .screen.enter{
+      transform: translateY(0);
+      opacity:1;
+    }
+
+    .q-title{
+      margin:0 0 10px;
+      font-size: 18px;
+      line-height:1.35;
+    }
+    .q-sub{
+      margin:0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .code{
+      margin: 10px 0 14px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 12px;
+      color: rgba(233,238,255,.9);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      overflow:auto;
+    }
+
+    .answers{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .ans{
+      cursor:pointer;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(233,238,255,.92);
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .ans:hover{ transform: translateY(-1px); border-color: rgba(110,231,255,.45); }
+    .ans:active{ transform: translateY(0px) scale(.995); }
+    .ans input{ margin-top:3px; }
+    .ans.correct{
+      border-color: rgba(83,243,166,.75);
+      background: rgba(83,243,166,.10);
+    }
+    .ans.wrong{
+      border-color: rgba(255,107,138,.75);
+      background: rgba(255,107,138,.10);
+    }
+    .ans.disabled{ cursor:not-allowed; opacity:.92; }
+    .feedback{
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      display:none;
+      animation: pop .28s ease;
+    }
+    @keyframes pop{
+      from{ transform: scale(.98); opacity:.0; }
+      to{ transform: scale(1); opacity:1; }
+    }
+    .feedback.good{ border-color: rgba(83,243,166,.6); }
+    .feedback.bad{ border-color: rgba(255,107,138,.6); }
+    .feedback .why{ color: var(--muted); margin-top:6px; font-size: 13px; }
+
+    .actions{
+      margin-top: 16px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    button{
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      letter-spacing:.2px;
+      transition: transform .12s ease, border-color .2s ease, background .2s ease;
+    }
+    button:hover{
+      border-color: rgba(110,231,255,.55);
+      background: rgba(110,231,255,.10);
+      transform: translateY(-1px);
+    }
+    button:active{ transform: translateY(0px) scale(.995); }
+    button.primary{
+      border-color: rgba(83,243,166,.6);
+      background: rgba(83,243,166,.12);
+    }
+    button.primary:hover{
+      border-color: rgba(83,243,166,.9);
+      background: rgba(83,243,166,.18);
+    }
+    button:disabled{
+      cursor:not-allowed;
+      opacity:.55;
+      transform:none;
+    }
+
+    .result{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 10px;
+    }
+    .scoreRing{
+      width: 92px;
+      height: 92px;
+      border-radius: 999px;
+      background:
+        conic-gradient(var(--accent) 0deg, var(--good) 0deg, rgba(255,255,255,.10) 0deg);
+      display:grid;
+      place-items:center;
+      position:relative;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+    .scoreRing:before{
+      content:"";
+      position:absolute;
+      width: 74px;
+      height: 74px;
+      border-radius: 999px;
+      background: rgba(10,16,32,.95);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+    }
+    .scoreText{
+      position:relative;
+      font-weight: 900;
+      letter-spacing:.3px;
+      font-size: 18px;
+    }
+    .resultText{
+      flex: 1;
+      min-width: 220px;
+    }
+    .resultText h2{
+      margin:0;
+      font-size: 20px;
+    }
+    .resultText p{
+      margin:6px 0 0;
+      color: var(--muted);
+      line-height:1.35;
+    }
+
+    footer{
+      margin-top: 18px;
+      color: rgba(233,238,255,.55);
+      font-size: 12px;
+      text-align:center;
+    }
+    .logo-img{
+  padding: 10px;              /* логотипке орын */
+}
+.logo-img img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;         /* логотип кесілмей сыйсын */
+  position: relative;
+  z-index: 2;                  /* badge:after үстінен көрінсін */
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
+}.logo-badge:after{ opacity: .35; }
+.logo-badge:after{ display:none; }
+
+    @media (min-width: 820px){
+      .answers{ grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Right rail logo -->
+  <div class="logo-rail" aria-hidden="true">
+  <div class="logo-text">C++ QUIZ</div>
+
+  <!-- 👇 Осында өз логотипіңнің жолын қоясың -->
+  <div class="logo-badge logo-img">
+    <img src="assets/logo.png" alt="Company Logo" />
+  </div>
+</div>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>C++ Mini Quiz: Конструкторлар & Динамикалық инициализация</h1>
+        <p class="subtitle">
+          10 сұрақ. Тақырыптар: constructor overloading, dynamic init (heap/new), copy ctor, explicit, shallow/deep copy, by value vs const&.
+        </p>
+        <div class="pillrow">
+          <span class="pill">⏱️ ~3–5 мин</span>
+          <span class="pill">✅ бір дұрыс жауап</span>
+          <span class="pill">🎯 соңында балл шығады</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="topbar">
+        <div class="progress" aria-label="progress"><div id="bar"></div></div>
+        <div class="meta">
+          <span>Сұрақ: <strong id="qnum">0</strong>/10</span>
+          <span>Балл: <strong id="pts">0</strong></span>
+        </div>
+      </div>
+
+      <div class="stage">
+        <!-- Start screen -->
+        <section id="start" class="screen active">
+          <h2 style="margin:0 0 10px;">Бастаймыз ба?</h2>
+          <p style="margin:0;color:var(--muted);max-width:70ch;">
+            “Start” бас. Әр сұрақтан кейін дұрыс/қате түсіндірме шығады.
+          </p>
+          <div class="actions" style="margin-top:16px;">
+            <button class="primary" id="startBtn">Start 🚀</button>
+          </div>
+        </section>
+
+        <!-- Quiz screen -->
+        <section id="quiz" class="screen">
+          <h3 class="q-title" id="questionTitle"></h3>
+          <p class="q-sub" id="questionSub"></p>
+          <pre class="code" id="codeBlock" style="display:none;"></pre>
+
+          <div class="answers" id="answers"></div>
+
+          <div class="feedback" id="feedback">
+            <div id="fbTitle" style="font-weight:900;"></div>
+            <div class="why" id="fbWhy"></div>
+          </div>
+
+          <div class="actions">
+            <button id="prevBtn">← Артқа</button>
+            <button class="primary" id="nextBtn" disabled>Келесі →</button>
+          </div>
+        </section>
+
+        <!-- Result screen -->
+        <section id="result" class="screen">
+          <div class="result">
+            <div class="scoreRing" id="ring"><div class="scoreText" id="scoreText">0/10</div></div>
+            <div class="resultText">
+              <h2 id="resTitle">Нәтиже</h2>
+              <p id="resDesc"></p>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="reviewBtn">Қайта қарап шығу</button>
+            <button class="primary" id="restartBtn">Қайта бастау ↻</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer>Single-file: index.html • Works offline • No libraries</footer>
+  </div>
+
+<script>
+(() => {
+  const questions = [
+    {
+      title: "1) Constructor overloading деген не?",
+      sub: "Бір класта бірнеше конструктор жазуға қатысты дұрыс анықтаманы таңда.",
+      options: [
+        "Бір класста бір атаумен, бірақ параметрлері әртүрлі бірнеше конструктор болуы",
+        "Класта тек бір ғана конструктор болуы",
+        "Тек деструкторды бірнеше рет жазу",
+        "Классты мұрагерлікпен көбейту"
+      ],
+      correct: 0,
+      why: "Overloading = бір атау, бірақ параметр тізімі әртүрлі конструкторлар."
+    },
+    {
+      title: "2) Мына кодта қай конструктор шақырылады?",
+      sub: "Дәл қайсысы таңдалады?",
+      code:
+`struct R{
+  R() {}
+  R(int) {}
+  R(int,int) {}
+};
+R a(5);`,
+      options: [
+        "R()",
+        "R(int)",
+        "R(int,int)",
+        "Ешқайсысы (қате)"
+      ],
+      correct: 1,
+      why: "a(5) → бір int аргумент бар, сондықтан R(int) дәл сәйкес келеді."
+    },
+    {
+      title: "3) Неге мына жерде ambiguous (екіұшты) шығады?",
+      sub: "Себебін таңда.",
+      code:
+`struct P{
+  P() {}
+  P(int x = 0) {}
+};
+P p;`,
+      options: [
+        "Екеуі де параметрсіз шақырылатындай болып тұр",
+        "P() жоқ болғандықтан",
+        "int типі болмай қалғандықтан",
+        "Бұл кодта бәрі дұрыс, ambiguous болмайды"
+      ],
+      correct: 0,
+      why: "P() да жарайды, P(int x=0) да параметрсіз шақырыла береді → компилятор таңдай алмайды."
+    },
+    {
+      title: "4) explicit не үшін керек?",
+      sub: "Ең нақты жауапты таңда.",
+      options: [
+        "Жасырын (implicit) түрлендіруді тоқтату үшін",
+        "Кодты міндетті түрде жылдамдату үшін",
+        "Деструкторды автомат шақыру үшін",
+        "new/delete қолданбау үшін"
+      ],
+      correct: 0,
+      why: "explicit 1-параметрлі ctor арқылы автоматты айналдыруды шектейді."
+    },
+    {
+      title: "5) Heap деген не?",
+      sub: "Дұрыс сипаттаманы таңда.",
+      options: [
+        "Функциямен бірге жойылатын автоматты жады аймағы (stack)",
+        "new арқылы бөлінетін динамикалық жады аймағы",
+        "Тек глобал айнымалылар тұратын жер",
+        "Компилятор коды сақталатын орын"
+      ],
+      correct: 1,
+      why: "Heap — runtime-та new арқылы жады бөлінетін аймақ, оны delete босатады."
+    },
+    {
+      title: "6) new[] пен delete[] не үшін жұп болуы керек?",
+      sub: "Дұрыс жауапты таңда.",
+      options: [
+        "new[] массивке бөледі, delete[] массивті дұрыс босатады",
+        "new[] тек бір объект жасайды",
+        "delete[] тек stack-та жұмыс істейді",
+        "Еш айырмашылық жоқ"
+      ],
+      correct: 0,
+      why: "Массивке new[] қолдансаң, оны дұрыс босату үшін delete[] керек."
+    },
+    {
+      title: "7) Copy constructor қашан шақырылады?",
+      sub: "Ең дұрыс вариант.",
+      options: [
+        "Тек b = a (assignment) кезінде",
+        "A b = a; сияқты жаңа объект көшірмемен құрылғанда (инициализация)",
+        "Тек delete кезінде",
+        "Тек default конструктор жоқ болса"
+      ],
+      correct: 1,
+      why: "Copy ctor — жаңа объектті басқа объекттен көшіріп құру кезінде шақырылады."
+    },
+    {
+      title: "8) Неге by value параметр copy ctor шақырады?",
+      sub: "Себебі не?",
+      code:
+`void show(Box b){ /*...*/ }
+Box a;
+show(a);`,
+      options: [
+        "b — жаңа объект, оны жасау үшін a-дан көшірме керек",
+        "b — a-ның сілтемесі ғана",
+        "show() ішінде delete бар",
+        "Компилятор міндетті түрде бәрін clone жасайды"
+      ],
+      correct: 0,
+      why: "by value → параметрдің өзі жеке объект → a-дан көшіріліп жасалады."
+    },
+    {
+      title: "9) Shallow copy мен Deep copy айырмасы қандай?",
+      sub: "Pointer бар класста маңызды.",
+      options: [
+        "Shallow: тек адресті көшіреді; Deep: жаңа жады алып, мәнін көшіреді",
+        "Shallow: жаңа жады алады; Deep: тек адресті көшіреді",
+        "Екеуі бір нәрсе",
+        "Deep copy тек int үшін қолданылады"
+      ],
+      correct: 0,
+      why: "Pointer/resource болса deep copy керек, әйтпесе double delete болуы мүмкін."
+    },
+    {
+      title: "10) Rule of 3 нені айтады?",
+      sub: "Ресурс (new/delete) бар класста...",
+      options: [
+        "Copy ctor, operator=, destructor үшеуі бірге керек болады",
+        "Тек 3 түрлі конструктор жазу керек",
+        "3 рет delete жасау керек",
+        "3 айнымалыдан артық қолданбау керек"
+      ],
+      correct: 0,
+      why: "Ресурс ұстасаң: destructor + copy ctor + copy assignment қажет (Rule of 3)."
+    },
+  ];
+
+  // DOM
+  const start = document.getElementById('start');
+  const quiz = document.getElementById('quiz');
+  const result = document.getElementById('result');
+
+  const bar = document.getElementById('bar');
+  const qnum = document.getElementById('qnum');
+  const pts = document.getElementById('pts');
+
+  const questionTitle = document.getElementById('questionTitle');
+  const questionSub = document.getElementById('questionSub');
+  const codeBlock = document.getElementById('codeBlock');
+  const answersEl = document.getElementById('answers');
+
+  const feedback = document.getElementById('feedback');
+  const fbTitle = document.getElementById('fbTitle');
+  const fbWhy = document.getElementById('fbWhy');
+
+  const startBtn = document.getElementById('startBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const ring = document.getElementById('ring');
+  const scoreText = document.getElementById('scoreText');
+  const resTitle = document.getElementById('resTitle');
+  const resDesc = document.getElementById('resDesc');
+  const restartBtn = document.getElementById('restartBtn');
+  const reviewBtn = document.getElementById('reviewBtn');
+
+  // State
+  let idx = 0;
+  let score = 0;
+  const picked = Array(questions.length).fill(null);
+  const checked = Array(questions.length).fill(false);
+
+  function setScreen(activeEl){
+    for(const el of [start, quiz, result]){
+      el.classList.remove('active','enter');
+      el.style.display = 'none';
+    }
+    activeEl.style.display = 'block';
+    activeEl.classList.add('active');
+    requestAnimationFrame(() => activeEl.classList.add('enter'));
+  }
+
+  function updateTop(){
+    qnum.textContent = Math.min(idx+1, questions.length);
+    pts.textContent = score;
+    const pct = (Math.min(idx, questions.length) / questions.length) * 100;
+    bar.style.width = `${pct}%`;
+  }
+
+  function renderQuestion(){
+    updateTop();
+    const q = questions[idx];
+    questionTitle.textContent = q.title;
+    questionSub.textContent = q.sub || '';
+    if(q.code){
+      codeBlock.style.display = 'block';
+      codeBlock.textContent = q.code;
+    }else{
+      codeBlock.style.display = 'none';
+      codeBlock.textContent = '';
+    }
+
+    answersEl.innerHTML = '';
+    feedback.style.display = 'none';
+    feedback.classList.remove('good','bad');
+
+    const chosen = picked[idx];
+
+    q.options.forEach((text, optIndex) => {
+      const label = document.createElement('label');
+      label.className = 'ans';
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'opt';
+      radio.value = optIndex;
+      radio.checked = (chosen === optIndex);
+      radio.disabled = checked[idx];
+
+      const span = document.createElement('div');
+      span.textContent = text;
+
+      label.appendChild(radio);
+      label.appendChild(span);
+
+      label.addEventListener('click', (e) => {
+        if(checked[idx]) return;
+        picked[idx] = optIndex;
+        // enable Next only after pick
+        nextBtn.disabled = false;
+
+        // lock in answer immediately
+        checked[idx] = true;
+
+        // score update
+        const wasCorrect = (optIndex === q.correct);
+        if(wasCorrect) score += 1;
+
+        // show feedback & paint answers
+        showFeedback(wasCorrect, q.why);
+        paintAnswers();
+
+        // update UI
+        pts.textContent = score;
+      });
+
+      answersEl.appendChild(label);
+    });
+
+    // If already answered before (review)
+    if(checked[idx]){
+      nextBtn.disabled = false;
+      showFeedback(picked[idx] === q.correct, q.why);
+      paintAnswers();
+    }else{
+      nextBtn.disabled = (picked[idx] === null);
+    }
+
+    prevBtn.disabled = (idx === 0);
+    nextBtn.textContent = (idx === questions.length-1) ? "Нәтиже →" : "Келесі →";
+  }
+
+  function paintAnswers(){
+    const q = questions[idx];
+    const labels = [...answersEl.querySelectorAll('.ans')];
+    labels.forEach((lab, i) => {
+      lab.classList.add('disabled');
+      const inp = lab.querySelector('input');
+      inp.disabled = true;
+
+      if(i === q.correct) lab.classList.add('correct');
+      if(picked[idx] === i && i !== q.correct) lab.classList.add('wrong');
+    });
+  }
+
+  function showFeedback(ok, why){
+    feedback.style.display = 'block';
+    feedback.classList.toggle('good', ok);
+    feedback.classList.toggle('bad', !ok);
+    fbTitle.textContent = ok ? "✅ Дұрыс!" : "❌ Қате!";
+    fbWhy.textContent = why || '';
+  }
+
+  function finish(){
+    // fill bar to 100
+    bar.style.width = "100%";
+    const total = questions.length;
+    const pct = Math.round((score / total) * 100);
+
+    scoreText.textContent = `${score}/${total}`;
+
+    // ring gradient
+    const deg = Math.round((score / total) * 360);
+    ring.style.background = `conic-gradient(var(--accent) 0deg, var(--good) ${deg}deg, rgba(255,255,255,.10) ${deg}deg)`;
+
+    let msg;
+    if(pct >= 90) msg = "🔥 Өте күшті! Тақырыпты жақсы түсінесің.";
+    else if(pct >= 70) msg = "✅ Жақсы! Аздап practice жасасаң, супер болады.";
+    else if(pct >= 50) msg = "🙂 Орташа. Қате шыққан сұрақтарды қайта қарап шық.";
+    else msg = "🧱 База әлсіздеу. Қайта қарап, мысалдармен бекітіп ал.";
+
+    resTitle.textContent = `Нәтиже: ${pct}%`;
+    resDesc.textContent = `${msg} (Балл: ${score}/${total})`;
+
+    setScreen(result);
+  }
+
+  // Events
+  startBtn.addEventListener('click', () => {
+    idx = 0;
+    score = 0;
+    picked.fill(null);
+    checked.fill(false);
+    pts.textContent = "0";
+    bar.style.width = "0%";
+    setScreen(quiz);
+    renderQuestion();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if(idx > 0){
+      idx--;
+      renderQuestion();
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if(idx === questions.length - 1){
+      finish();
+      return;
+    }
+    idx++;
+    renderQuestion();
+  });
+
+  restartBtn.addEventListener('click', () => {
+    idx = 0;
+    score = 0;
+    picked.fill(null);
+    checked.fill(false);
+    pts.textContent = "0";
+    bar.style.width = "0%";
+    setScreen(quiz);
+    renderQuestion();
+  });
+
+  reviewBtn.addEventListener('click', () => {
+    idx = 0;
+    setScreen(quiz);
+    renderQuestion();
+  });
+
+  // Initial
+  setScreen(start);
+})();
+</script>
+</body>
+</html>
