@@ -1,831 +1,754 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>C++ Quiz — Constructors & Dynamic Init</title>
-  <style>
-    :root{
-      --bg:#0b1020;
-      --card:#121a33;
-      --card2:#0f1730;
-      --text:#e9eeff;
-      --muted:#a9b4d6;
-      --accent:#6ee7ff;
-      --good:#53f3a6;
-      --bad:#ff6b8a;
-      --warn:#ffd36e;
-      --shadow: 0 24px 70px rgba(0,0,0,.35);
-      --radius: 18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 25% 15%, rgba(110,231,255,.18), transparent 45%),
-                  radial-gradient(900px 600px at 80% 85%, rgba(83,243,166,.14), transparent 50%),
-                  var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      overflow-x:hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТОП vs ҰЖЫМ • психологиялық тест</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Right-edge logo */
-    .logo-rail{
-      position:fixed;
-      top:50%;
-      right:14px;
-      transform:translateY(-50%);
-      z-index:999;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
-      pointer-events:none;
-    }
-    .logo-badge{
-      pointer-events:none;
-      width:90px;height:90px;
-      border-radius:12px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%),
-        linear-gradient(135deg, rgba(110,231,255,.95), rgba(83,243,166,.95));
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-      display:grid;
-      place-items:center;
-      position:relative;
-      overflow:hidden;
-      animation: floaty 3.2s ease-in-out infinite;
-    }
-    .logo-badge:after{
-      content:"";
-      position:absolute; inset:-60px;
-      background: conic-gradient(from 180deg, transparent 0 60%, rgba(255,255,255,.22) 70%, transparent 90%);
-      animation: spin 3.8s linear infinite;
-    }
-    .logo-badge span{
-      position:relative;
-      font-weight:900;
-      letter-spacing:.5px;
-      color:#04101a;
-      text-shadow: 0 1px 0 rgba(255,255,255,.35);
-    }
-    .logo-text{
-      pointer-events:none;
-      writing-mode:vertical-rl;
-      transform: rotate(180deg);
-      font-size:12px;
-      color:rgba(233,238,255,.75);
-      letter-spacing:2px;
-      text-transform:uppercase;
-      opacity:.85;
-    }
-    @keyframes floaty{
-      0%,100%{ transform: translateY(0) }
-      50%{ transform: translateY(-6px) }
-    }
-    @keyframes spin{
-      to{ transform: rotate(360deg) }
-    }
+        body {
+            background: #0c0a1a;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 60, 120, 0.25) 0%, transparent 30%),
+                radial-gradient(circle at 90% 70%, rgba(0, 255, 200, 0.2) 0%, transparent 35%),
+                repeating-linear-gradient(45deg, rgba(30, 20, 50, 0.4) 0px, rgba(30, 20, 50, 0.4) 2px, 
+                                          rgba(50, 30, 70, 0.4) 2px, rgba(50, 30, 70, 0.4) 6px);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            color: #f0eaff;
+        }
 
-    .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 28px 18px 64px;
-    }
-    header{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom: 18px;
-    }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    h1{
-      margin:0;
-      font-size: clamp(22px, 3.4vw, 34px);
-      letter-spacing:.2px;
-      line-height:1.15;
-    }
-    .subtitle{
-      margin:0;
-      color:var(--muted);
-      max-width: 58ch;
-    }
-    .pillrow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top: 8px;
-    }
-    .pill{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      color: rgba(233,238,255,.85);
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      backdrop-filter: blur(8px);
-    }
+        /* Дерзкий контейнер — рваный край, неон */
+        .quiz-container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(12, 8, 24, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 2px solid;
+            border-image: repeating-linear-gradient(45deg, #ff3a7a, #00ffcc, #ff3a7a) 30;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 58, 122, 0.5), 0 0 0 2px rgba(0, 255, 200, 0.3) inset;
+            border-radius: 48px 12px 48px 12px;
+            transform: rotate(0.2deg);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: borderPulse 3s infinite alternate;
+        }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
+        @keyframes borderPulse {
+            0% { border-image: repeating-linear-gradient(45deg, #ff3a7a, #00ffcc, #ff3a7a) 30; box-shadow: 0 30px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 58, 122, 0.6); }
+            100% { border-image: repeating-linear-gradient(45deg, #00ffcc, #ff3a7a, #00ffcc) 30; box-shadow: 0 30px 70px rgba(0, 255, 200, 0.5), 0 0 50px rgba(255, 58, 122, 0.7); }
+        }
 
-    .topbar{
-      padding: 14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      background: rgba(0,0,0,.18);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
+        .quiz-container:hover {
+            transform: rotate(0deg) scale(1.005);
+        }
 
-    .progress{
-      flex:1;
-      height: 10px;
-      background: rgba(255,255,255,.08);
-      border-radius:999px;
-      overflow:hidden;
-      position:relative;
-    }
-    .progress > div{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, var(--accent), var(--good));
-      border-radius:999px;
-      transition: width .5s cubic-bezier(.2,.9,.2,1);
-      box-shadow: 0 0 18px rgba(110,231,255,.35);
-    }
-    .meta{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      color: rgba(233,238,255,.88);
-      font-size: 13px;
-      white-space:nowrap;
-    }
-    .meta strong{ color: var(--accent); }
+        /* хедер — панк-рок */
+        .header {
+            padding: 28px 24px 16px 24px;
+            border-bottom: 3px dashed #ff3a7a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-    .stage{
-      padding: 18px 18px 20px;
-      background:
-        radial-gradient(700px 300px at 20% 10%, rgba(110,231,255,.10), transparent 60%),
-        radial-gradient(600px 260px at 95% 95%, rgba(83,243,166,.10), transparent 60%),
-        rgba(0,0,0,.08);
-    }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff6a0, #ffb3c6, #a6fff2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px #ff3a7a, 4px 4px 0 #0c0a1a;
+            line-height: 1;
+            margin: 0;
+        }
 
-    .screen{
-      display:none;
-      transform: translateY(12px);
-      opacity:0;
-      transition: transform .45s ease, opacity .45s ease;
-    }
-    .screen.active{
-      display:block;
-    }
-    .screen.enter{
-      transform: translateY(0);
-      opacity:1;
-    }
+        .badge {
+            background: #000;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 800;
+            font-size: 1rem;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px #00ffcc;
+            transform: rotate(-1deg);
+            transition: 0.2s;
+        }
 
-    .q-title{
-      margin:0 0 10px;
-      font-size: 18px;
-      line-height:1.35;
-    }
-    .q-sub{
-      margin:0 0 16px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .code{
-      margin: 10px 0 14px;
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      padding: 12px;
-      color: rgba(233,238,255,.9);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12.5px;
-      overflow:auto;
-    }
+        .badge:hover {
+            transform: rotate(1deg) scale(1.05);
+            background: #00ffcc;
+            color: #000;
+            box-shadow: 0 0 40px #00ffcc;
+        }
 
-    .answers{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-      margin-top: 10px;
-    }
-    .ans{
-      cursor:pointer;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color: rgba(233,238,255,.92);
-      transition: transform .12s ease, background .2s ease, border-color .2s ease;
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-    }
-    .ans:hover{ transform: translateY(-1px); border-color: rgba(110,231,255,.45); }
-    .ans:active{ transform: translateY(0px) scale(.995); }
-    .ans input{ margin-top:3px; }
-    .ans.correct{
-      border-color: rgba(83,243,166,.75);
-      background: rgba(83,243,166,.10);
-    }
-    .ans.wrong{
-      border-color: rgba(255,107,138,.75);
-      background: rgba(255,107,138,.10);
-    }
-    .ans.disabled{ cursor:not-allowed; opacity:.92; }
-    .feedback{
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.25);
-      display:none;
-      animation: pop .28s ease;
-    }
-    @keyframes pop{
-      from{ transform: scale(.98); opacity:.0; }
-      to{ transform: scale(1); opacity:1; }
-    }
-    .feedback.good{ border-color: rgba(83,243,166,.6); }
-    .feedback.bad{ border-color: rgba(255,107,138,.6); }
-    .feedback .why{ color: var(--muted); margin-top:6px; font-size: 13px; }
+        /* прогресс бар — агрессив */
+        .progress-area {
+            padding: 16px 24px 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
 
-    .actions{
-      margin-top: 16px;
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    button{
-      cursor:pointer;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-weight: 700;
-      letter-spacing:.2px;
-      transition: transform .12s ease, border-color .2s ease, background .2s ease;
-    }
-    button:hover{
-      border-color: rgba(110,231,255,.55);
-      background: rgba(110,231,255,.10);
-      transform: translateY(-1px);
-    }
-    button:active{ transform: translateY(0px) scale(.995); }
-    button.primary{
-      border-color: rgba(83,243,166,.6);
-      background: rgba(83,243,166,.12);
-    }
-    button.primary:hover{
-      border-color: rgba(83,243,166,.9);
-      background: rgba(83,243,166,.18);
-    }
-    button:disabled{
-      cursor:not-allowed;
-      opacity:.55;
-      transform:none;
-    }
+        .progress-track {
+            flex: 1;
+            height: 24px;
+            background: #1e1a2f;
+            border-radius: 100px;
+            border: 2px solid #ff3a7a;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.8), 0 0 10px #ff3a7a;
+            overflow: hidden;
+        }
 
-    .result{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top: 10px;
-    }
-    .scoreRing{
-      width: 92px;
-      height: 92px;
-      border-radius: 999px;
-      background:
-        conic-gradient(var(--accent) 0deg, var(--good) 0deg, rgba(255,255,255,.10) 0deg);
-      display:grid;
-      place-items:center;
-      position:relative;
-      box-shadow: 0 18px 50px rgba(0,0,0,.35);
-    }
-    .scoreRing:before{
-      content:"";
-      position:absolute;
-      width: 74px;
-      height: 74px;
-      border-radius: 999px;
-      background: rgba(10,16,32,.95);
-      border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(10px);
-    }
-    .scoreText{
-      position:relative;
-      font-weight: 900;
-      letter-spacing:.3px;
-      font-size: 18px;
-    }
-    .resultText{
-      flex: 1;
-      min-width: 220px;
-    }
-    .resultText h2{
-      margin:0;
-      font-size: 20px;
-    }
-    .resultText p{
-      margin:6px 0 0;
-      color: var(--muted);
-      line-height:1.35;
-    }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff3a7a, #ffb347, #00ffcc);
+            border-radius: 100px;
+            box-shadow: 0 0 30px #ffb347;
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
-    footer{
-      margin-top: 18px;
-      color: rgba(233,238,255,.55);
-      font-size: 12px;
-      text-align:center;
-    }
-    .logo-img{
-  padding: 10px;              /* логотипке орын */
-}
-.logo-img img{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;         /* логотип кесілмей сыйсын */
-  position: relative;
-  z-index: 2;                  /* badge:after үстінен көрінсін */
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
-}.logo-badge:after{ opacity: .35; }
-.logo-badge:after{ display:none; }
+        .stats {
+            display: flex;
+            gap: 24px;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
 
-    @media (min-width: 820px){
-      .answers{ grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+        .stats span {
+            background: #1f1a33;
+            padding: 8px 20px;
+            border-radius: 60px;
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 10px #00ffcc;
+        }
+
+        /* основной блок — дерзость */
+        .main-stage {
+            padding: 24px;
+            min-height: 380px;
+            position: relative;
+        }
+
+        /* анимация слайдов с overshoot */
+        .screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .screen.active {
+            display: block;
+            animation: overshootPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes overshootPop {
+            0% { opacity: 0; transform: translateY(60px) scale(0.8); }
+            50% { opacity: 1; transform: translateY(-10px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* вопросы */
+        .question-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff, #ffd6e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .question-sub {
+            font-size: 1rem;
+            color: #b9b0d4;
+            margin-bottom: 24px;
+            border-left: 8px solid #ff3a7a;
+            padding-left: 16px;
+            font-style: italic;
+        }
+
+        /* варианты — психо */
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .answer-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #4a3f70;
+            border-radius: 30px 8px 30px 8px;
+            padding: 18px 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+
+        .answer-item:hover:not(.disabled) {
+            border-color: #ff3a7a;
+            transform: translateY(-6px) scale(1.02) rotate(-0.5deg);
+            box-shadow: 0 20px 30px #ff3a7a80, 0 0 30px #00ffcc;
+            background: #2a1f44;
+        }
+
+        .answer-item input[type="radio"] {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ff3a7a;
+            border-radius: 0px 12px 0px 12px;
+            background: transparent;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+
+        .answer-item input[type="radio"]:checked {
+            background: #ff3a7a;
+            box-shadow: 0 0 30px #ff3a7a, inset 0 0 0 4px #00ffcc;
+            transform: rotate(90deg);
+        }
+
+        .answer-item.disabled {
+            opacity: 0.8;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+        }
+
+        .answer-item.correct {
+            border-color: #00ffcc;
+            background: rgba(0, 255, 200, 0.15);
+            box-shadow: 0 0 30px #00ffcc;
+        }
+
+        .answer-item.wrong {
+            border-color: #ff3a7a;
+            background: rgba(255, 58, 122, 0.2);
+            box-shadow: 0 0 30px #ff3a7a;
+        }
+
+        /* фидбек зона */
+        .feedback-block {
+            margin: 20px 0 0;
+            padding: 20px;
+            border: 3px solid;
+            border-image: repeating-linear-gradient(45deg, #ff3a7a, #00ffcc) 30;
+            background: #0e0b1a;
+            border-radius: 30px 4px 30px 4px;
+            display: none;
+            animation: glitch 0.4s;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-4px, 4px); }
+            40% { transform: translate(4px, -4px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        .feedback-block.good {
+            border-color: #00ffcc;
+            box-shadow: 0 0 40px #00ffcc;
+        }
+        .feedback-block.bad {
+            border-color: #ff3a7a;
+            box-shadow: 0 0 40px #ff3a7a;
+        }
+
+        .fb-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .fb-desc {
+            font-size: 1rem;
+            color: #ccc2f0;
+        }
+
+        /* кнопки — сочные */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            background: #121020;
+            border: 3px solid #ff3a7a;
+            color: #ff3a7a;
+            border-radius: 60px 8px 60px 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 0 #52001f, 0 0 20px #ff3a7a;
+            flex: 1 1 auto;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 0 #52001f, 0 0 50px #ff3a7a;
+            border-color: #00ffcc;
+            color: #00ffcc;
+            background: #1f1a40;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 5px 0 #52001f;
+        }
+
+        .btn.primary {
+            background: #ff3a7a;
+            color: #0c0a1a;
+            border-color: #00ffcc;
+            box-shadow: 0 10px 0 #6b0030, 0 0 30px #00ffcc;
+        }
+
+        .btn.primary:hover {
+            background: #00ffcc;
+            color: #0c0a1a;
+            border-color: #ff3a7a;
+            box-shadow: 0 15px 0 #006b55, 0 0 60px #ff3a7a;
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* результат */
+        .result-panel {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .score-ring {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(#00ffcc 0deg, #ff3a7a 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 60px #ff3a7a;
+            animation: spinRing 4s infinite linear;
+        }
+
+        @keyframes spinRing {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.1); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .score-ring::before {
+            content: '';
+            width: 110px;
+            height: 110px;
+            background: #0c0a1a;
+            border-radius: 50%;
+            position: absolute;
+            border: 3px solid #ff3a7a;
+        }
+
+        .score-value {
+            position: relative;
+            font-size: 2rem;
+            font-weight: 900;
+            z-index: 2;
+            background: linear-gradient(135deg, #fff, #ffb3c6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-text h2 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .result-text p {
+            font-size: 1.2rem;
+            color: #c0b4e6;
+        }
+
+        footer {
+            padding: 16px 24px;
+            text-align: center;
+            color: #6a5e8a;
+            border-top: 2px dashed #ff3a7a;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-  <!-- Right rail logo -->
-  <div class="logo-rail" aria-hidden="true">
-  
-
-  
-  <div class="logo-badge logo-img">
-    <img src="assets/logo.png" alt="Company Logo" />
-  </div>
-</div>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>C++ Mini Quiz: Конструкторлар & Динамикалық инициализация</h1>
-        <p class="subtitle">
-          10 сұрақ. Тақырыптар: constructor overloading, dynamic init (heap/new), copy ctor, explicit, shallow/deep copy, by value vs const&.
-        </p>
-        <div class="pillrow">
-          <span class="pill">⏱️ ~5–10 мин</span>
-          <span class="pill">✅ бір дұрыс жауап</span>
-          <span class="pill">🎯 соңында балл шығады</span>
+    <div class="quiz-container">
+        <div class="header">
+            <h1>💥 ТОП VS ҰЖЫМ 💥</h1>
+            <div class="badge">психологиялық тест</div>
         </div>
-      </div>
-    </header>
 
-    <div class="card">
-      <div class="topbar">
-        <div class="progress" aria-label="progress"><div id="bar"></div></div>
-        <div class="meta">
-          <span>Сұрақ: <strong id="qnum">0</strong>/10</span>
-          <span>Балл: <strong id="pts">0</strong></span>
-        </div>
-      </div>
-
-      <div class="stage">
-        <!-- Start screen -->
-        <section id="start" class="screen active">
-          <h2 style="margin:0 0 10px;">Бастау</h2>
-          <p style="margin:0;color:var(--muted);max-width:70ch;">
-            Әр сұрақтан кейін түсіндірмесі бар. 
-          </p>
-          <div class="actions" style="margin-top:16px;">
-            <button class="primary" id="startBtn">Start 🚀</button>
-          </div>
-        </section>
-
-        <!-- Quiz screen -->
-        <section id="quiz" class="screen">
-          <h3 class="q-title" id="questionTitle"></h3>
-          <p class="q-sub" id="questionSub"></p>
-          <pre class="code" id="codeBlock" style="display:none;"></pre>
-
-          <div class="answers" id="answers"></div>
-
-          <div class="feedback" id="feedback">
-            <div id="fbTitle" style="font-weight:900;"></div>
-            <div class="why" id="fbWhy"></div>
-          </div>
-
-          <div class="actions">
-            <button id="prevBtn">← Артқа</button>
-            <button class="primary" id="nextBtn" disabled>Келесі →</button>
-          </div>
-        </section>
-
-        <!-- Result screen -->
-        <section id="result" class="screen">
-          <div class="result">
-            <div class="scoreRing" id="ring"><div class="scoreText" id="scoreText">0/10</div></div>
-            <div class="resultText">
-              <h2 id="resTitle">Нәтиже</h2>
-              <p id="resDesc"></p>
+        <div class="progress-area">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
-          </div>
-          <div class="actions">
-            <button id="reviewBtn">Қайта қарап шығу</button>
-            <button class="primary" id="restartBtn">Қайта бастау ↻</button>
-          </div>
-        </section>
-      </div>
+            <div class="stats">
+                <span id="qCounter">0/10</span>
+                <span id="scoreDisplay">0</span>
+            </div>
+        </div>
+
+        <div class="main-stage">
+            <!-- start -->
+            <section id="startScreen" class="screen active">
+                <div style="padding: 40px 20px; text-align: center;">
+                    <div style="font-size: 4rem; filter: drop-shadow(0 0 30px #ff3a7a);">🧠⚡</div>
+                    <h2 style="font-size: 2.5rem; margin: 20px 0;">Басқарудағы топ және ұжым?</h2>
+                    <p style="font-size: 1.2rem; margin-bottom: 40px; color: #b9aef0;"><br>10 сұрақ.</p>
+                    <button class="btn primary" id="startBtn">МЕН ДАЙЫНМЫН </button>
+                </div>
+            </section>
+
+            <!-- quiz -->
+            <section id="quizScreen" class="screen">
+                <div class="question-title" id="questionText"></div>
+                <div class="question-sub" id="questionSub"></div>
+
+                <div class="answers-grid" id="answersContainer"></div>
+
+                <div class="feedback-block" id="feedbackBlock">
+                    <div class="fb-title" id="fbTitle"></div>
+                    <div class="fb-desc" id="fbDesc"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" id="prevBtn" disabled>← АРТҚА</button>
+                    <button class="btn primary" id="nextBtn" disabled>КЕЛЕСІ →</button>
+                </div>
+            </section>
+
+            <!-- result -->
+            <section id="resultScreen" class="screen">
+                <div class="result-panel">
+                    <div class="score-ring" id="scoreRing">
+                        <span class="score-value" id="scoreFraction">0/10</span>
+                    </div>
+                    <div class="result-text">
+                        <h2 id="resultTitle"></h2>
+                        <p id="resultDesc"></p>
+                    </div>
+                </div>
+                <div class="action-buttons" style="margin-top: 40px;">
+                    <button class="btn" id="reviewBtn">ҚАЙТА ҚАРАУ</button>
+                    <button class="btn primary" id="restartBtn">ЖАҢАДАН 🚀</button>
+                </div>
+            </section>
+        </div>
+        <footer>Әр сұрақ — миға соққы. Тек шынайы жауап бер.</footer>
     </div>
 
-   
-  </div>
+    <script>
+        (function() {
+            // Сұрақтар массиві
+            const questions = [
+                {
+                    title: "№1 СЕНІҢ ОЙЫҢША, ТОП ПЕН ҰЖЫМНЫҢ АЙЫРМАСЫ?",
+                    sub: "бір ғана дұрыс жауап",
+                    options: [
+                        "ұжымда психологиялық байланыс күшті, ортақ рух бар",
+                        "топ тек формальды, ұжым тек бейформальды",
+                        "ұжым деген кез келген адамдар тобы",
+                        "топта лидер болмайды, ұжымда болады"
+                    ],
+                    correct: 0,
+                    why: "Дұрыс! Ұжым — ортақ құндылық, сенім, мақсат. Топ — жай ғана бірге жүргендер."
+                },
+                {
+                    title: "№2 ФОРМАЛЬДЫ ТОП ДЕГЕНІМІЗ...",
+                    sub: "таңда, бірақ ойлан",
+                    options: [
+                        "басшылық бұйрығымен құрылған топ",
+                        "коридорда достасып қалғандар",
+                        "интернеттегі кездейсоқ чат",
+                        "тек отбасы мүшелері"
+                    ],
+                    correct: 0,
+                    why: "Иә! Формальды топ — лауазымдық міндеттерге сай құрылады."
+                },
+                {
+                    title: "№3 БЕЙФОРМАЛЬДЫ ТОП ҚАЛАЙ ПАЙДА БОЛАДЫ?",
+                    sub: "қалай ойлайсың?",
+                    options: [
+                        "адамдардың ортақ қызығушылығынан",
+                        "директордың бұйрығынан кейін",
+                        "еңбек келісім-шарты бойынша",
+                        "сот шешімімен"
+                    ],
+                    correct: 0,
+                    why: "Дұрыс! Бейформальды — жүрек қалауы, достық, ортақ әзіл."
+                },
+                {
+                    title: "№4 ЕҢ ТИІМДІ ТОП МӨЛШЕРІ?",
+                    sub: "статистика, брат",
+                    options: [
+                        "3-4 адам",
+                        "5-11 адам",
+                        "15-20 адам",
+                        "25+ адам"
+                    ],
+                    correct: 1,
+                    why: "5-11! Әркім сөйлей алады, басқаруға жеңіл."
+                },
+                {
+                    title: "№5 АВТОРИТАРЛЫҚ СТИЛЬ ҚАШАН ТИІМДІ?",
+                    sub: "ойлан, мұнда қателесуге болмайды",
+                    options: [
+                        "шығармашылық кезде",
+                        "төтенше жағдайда",
+                        "демалыс күні",
+                        "ешқашан"
+                    ],
+                    correct: 1,
+                    why: "Дағдарыс, соғыс, апат кезінде — тек авторитарлық!"
+                },
+                {
+                    title: "№6 ДЕМОКРАТИЯЛЫҚ СТИЛЬДІҢ АРТЫҚШЫЛЫҒЫ?",
+                    sub: "енді шатаспа",
+                    options: [
+                        "жылдам шешім",
+                        "қызметкерлердің белсенділігі артады",
+                        "басшы ештеңе істемейді",
+                        "тәртіп өте қатал"
+                    ],
+                    correct: 1,
+                    why: "Адамдар өзін маңызды сезініп, жанымен жұмыс істейді."
+                },
+                {
+                    title: "№7 ЛИДЕР МЕН БАСШЫНЫҢ АЙЫРМАСЫ?",
+                    sub: "бұл классика",
+                    options: [
+                        "лидер — жүректен, басшы — лауазымнан",
+                        "лидерді тағайындайды, басшыны сайлайды",
+                        "еш айырма жоқ",
+                        "басшы әрқашан лидер"
+                    ],
+                    correct: 0,
+                    why: "Лауазым — басшы, ықпал — лидер. Адамдар лидерге еріп жүреді."
+                },
+                {
+                    title: "№8 ТОПТЫҚ НОРМАЛАР ДЕГЕН...",
+                    sub: "қандай ереже?",
+                    options: [
+                        "заңдар жинағы",
+                        "жазылмаған мінез-құлық стандарттары",
+                        "директордың бұйрығы",
+                        "ешкім білмейді"
+                    ],
+                    correct: 1,
+                    why: "Иә, мысалы «біз кешікпейміз» немесе «киім коды жоқ»."
+                },
+                {
+                    title: "№9 ПСИХОЛОГИЯЛЫҚ КЛИМАТ ДЕГЕН НЕ?",
+                    sub: "сезінесің бе?",
+                    options: [
+                        "бөлмедегі ауа",
+                        "адамдар арасындағы көңіл-күй, сенім",
+                        "жалақы мөлшері",
+                        "жұмыс уақыты"
+                    ],
+                    correct: 1,
+                    why: "Бұл — ұжымның рухы, шиеленіс немесе жылулық."
+                },
+                {
+                    title: "№10 БИЛІК ДЕГЕНІМІЗ?",
+                    sub: "финал, батыр",
+                    options: [
+                        "тек ақша",
+                        "адамдардың мінез-құлқына әсер ету мүмкіндігі",
+                        "тек лауазым",
+                        "күш көрсету"
+                    ],
+                    correct: 1,
+                    why: "Билік — әсер ету. Ақша, білім, харизма — бәрі билік."
+                }
+            ];
 
-<script>
-(() => {
-  const questions = [
-    {
-      title: "1) Constructor overloading деген не?",
-      sub: "Бір класта бірнеше конструктор жазуға қатысты дұрыс анықтаманы таңда.",
-      options: [
-        "Бір класста бір атаумен, бірақ параметрлері әртүрлі бірнеше конструктор болуы",
-        "Класта тек бір ғана конструктор болуы",
-        "Тек деструкторды бірнеше рет жазу",
-        "Классты мұрагерлікпен көбейту"
-      ],
-      correct: 0,
-      why: "Overloading = бір атау, бірақ параметр тізімі әртүрлі конструкторлар."
-    },
-    {
-      title: "2) Мына кодта қай конструктор шақырылады?",
-      sub: "Дәл қайсысы таңдалады?",
-      code:
-`struct R{
-  R() {}
-  R(int) {}
-  R(int,int) {}
-};
-R a(5);`,
-      options: [
-        "R()",
-        "R(int)",
-        "R(int,int)",
-        "Ешқайсысы (қате)"
-      ],
-      correct: 1,
-      why: "a(5) → бір int аргумент бар, сондықтан R(int) дәл сәйкес келеді."
-    },
-    {
-      title: "3) Неге мына жерде ambiguous (екіұшты) шығады?",
-      sub: "Себебін таңда.",
-      code:
-`struct P{
-  P() {}
-  P(int x = 0) {}
-};
-P p;`,
-      options: [
-        "Екеуі де параметрсіз шақырылатындай болып тұр",
-        "P() жоқ болғандықтан",
-        "int типі болмай қалғандықтан",
-        "Бұл кодта бәрі дұрыс, ambiguous болмайды"
-      ],
-      correct: 0,
-      why: "P() да жарайды, P(int x=0) да параметрсіз шақырыла береді → компилятор таңдай алмайды."
-    },
-    {
-      title: "4) explicit не үшін керек?",
-      sub: "Ең нақты жауапты таңда.",
-      options: [
-        "Жасырын (implicit) түрлендіруді тоқтату үшін",
-        "Кодты міндетті түрде жылдамдату үшін",
-        "Деструкторды автомат шақыру үшін",
-        "new/delete қолданбау үшін"
-      ],
-      correct: 0,
-      why: "explicit 1-параметрлі ctor арқылы автоматты айналдыруды шектейді."
-    },
-    {
-      title: "5) Heap деген не?",
-      sub: "Дұрыс сипаттаманы таңда.",
-      options: [
-        "Функциямен бірге жойылатын автоматты жады аймағы (stack)",
-        "new арқылы бөлінетін динамикалық жады аймағы",
-        "Тек глобал айнымалылар тұратын жер",
-        "Компилятор коды сақталатын орын"
-      ],
-      correct: 1,
-      why: "Heap — runtime-та new арқылы жады бөлінетін аймақ, оны delete босатады."
-    },
-    {
-      title: "6) new[] пен delete[] не үшін жұп болуы керек?",
-      sub: "Дұрыс жауапты таңда.",
-      options: [
-        "new[] массивке бөледі, delete[] массивті дұрыс босатады",
-        "new[] тек бір объект жасайды",
-        "delete[] тек stack-та жұмыс істейді",
-        "Еш айырмашылық жоқ"
-      ],
-      correct: 0,
-      why: "Массивке new[] қолдансаң, оны дұрыс босату үшін delete[] керек."
-    },
-    {
-      title: "7) Copy constructor қашан шақырылады?",
-      sub: "Ең дұрыс вариант.",
-      options: [
-        "Тек b = a (assignment) кезінде",
-        "A b = a; сияқты жаңа объект көшірмемен құрылғанда (инициализация)",
-        "Тек delete кезінде",
-        "Тек default конструктор жоқ болса"
-      ],
-      correct: 1,
-      why: "Copy ctor — жаңа объектті басқа объекттен көшіріп құру кезінде шақырылады."
-    },
-    {
-      title: "8) Неге by value параметр copy ctor шақырады?",
-      sub: "Себебі не?",
-      code:
-`void show(Box b){ /*...*/ }
-Box a;
-show(a);`,
-      options: [
-        "b — жаңа объект, оны жасау үшін a-дан көшірме керек",
-        "b — a-ның сілтемесі ғана",
-        "show() ішінде delete бар",
-        "Компилятор міндетті түрде бәрін clone жасайды"
-      ],
-      correct: 0,
-      why: "by value → параметрдің өзі жеке объект → a-дан көшіріліп жасалады."
-    },
-    {
-      title: "9) Shallow copy мен Deep copy айырмасы қандай?",
-      sub: "Pointer бар класста маңызды.",
-      options: [
-        "Shallow: тек адресті көшіреді; Deep: жаңа жады алып, мәнін көшіреді",
-        "Shallow: жаңа жады алады; Deep: тек адресті көшіреді",
-        "Екеуі бір нәрсе",
-        "Deep copy тек int үшін қолданылады"
-      ],
-      correct: 0,
-      why: "Pointer/resource болса deep copy керек, әйтпесе double delete болуы мүмкін."
-    },
-    {
-      title: "10) Rule of 3 нені айтады?",
-      sub: "Ресурс (new/delete) бар класста...",
-      options: [
-        "Copy ctor, operator=, destructor үшеуі бірге керек болады",
-        "Тек 3 түрлі конструктор жазу керек",
-        "3 рет delete жасау керек",
-        "3 айнымалыдан артық қолданбау керек"
-      ],
-      correct: 0,
-      why: "Ресурс ұстасаң: destructor + copy ctor + copy assignment қажет (Rule of 3)."
-    },
-  ];
+            // state
+            let currentIndex = 0;
+            let score = 0;
+            let userPicks = new Array(questions.length).fill(null);
+            let answered = new Array(questions.length).fill(false);
 
-  // DOM
-  const start = document.getElementById('start');
-  const quiz = document.getElementById('quiz');
-  const result = document.getElementById('result');
+            // DOM
+            const startScreen = document.getElementById('startScreen');
+            const quizScreen = document.getElementById('quizScreen');
+            const resultScreen = document.getElementById('resultScreen');
+            const progressFill = document.getElementById('progressFill');
+            const qCounter = document.getElementById('qCounter');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const questionText = document.getElementById('questionText');
+            const questionSub = document.getElementById('questionSub');
+            const answersContainer = document.getElementById('answersContainer');
+            const feedbackBlock = document.getElementById('feedbackBlock');
+            const fbTitle = document.getElementById('fbTitle');
+            const fbDesc = document.getElementById('fbDesc');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const startBtn = document.getElementById('startBtn');
+            const reviewBtn = document.getElementById('reviewBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const scoreRing = document.getElementById('scoreRing');
+            const scoreFraction = document.getElementById('scoreFraction');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDesc = document.getElementById('resultDesc');
 
-  const bar = document.getElementById('bar');
-  const qnum = document.getElementById('qnum');
-  const pts = document.getElementById('pts');
+            function showScreen(screen) {
+                [startScreen, quizScreen, resultScreen].forEach(s => s.classList.remove('active'));
+                screen.classList.add('active');
+            }
 
-  const questionTitle = document.getElementById('questionTitle');
-  const questionSub = document.getElementById('questionSub');
-  const codeBlock = document.getElementById('codeBlock');
-  const answersEl = document.getElementById('answers');
+            function updateProgress() {
+                qCounter.innerText = `${currentIndex + 1}/${questions.length}`;
+                scoreDisplay.innerText = score;
+                progressFill.style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+            }
 
-  const feedback = document.getElementById('feedback');
-  const fbTitle = document.getElementById('fbTitle');
-  const fbWhy = document.getElementById('fbWhy');
+            function renderQuestion() {
+                const q = questions[currentIndex];
+                questionText.innerText = q.title;
+                questionSub.innerText = q.sub;
 
-  const startBtn = document.getElementById('startBtn');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
+                let html = '';
+                q.options.forEach((opt, idx) => {
+                    const checked = (userPicks[currentIndex] === idx) ? 'checked' : '';
+                    html += `
+                        <label class="answer-item ${answered[currentIndex] ? 'disabled' : ''} ${answered[currentIndex] && idx === q.correct ? 'correct' : ''} ${answered[currentIndex] && userPicks[currentIndex] === idx && idx !== q.correct ? 'wrong' : ''}">
+                            <input type="radio" name="answer" value="${idx}" ${checked} ${answered[currentIndex] ? 'disabled' : ''}>
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+                answersContainer.innerHTML = html;
 
-  const ring = document.getElementById('ring');
-  const scoreText = document.getElementById('scoreText');
-  const resTitle = document.getElementById('resTitle');
-  const resDesc = document.getElementById('resDesc');
-  const restartBtn = document.getElementById('restartBtn');
-  const reviewBtn = document.getElementById('reviewBtn');
+                if (answered[currentIndex]) {
+                    const wasCorrect = (userPicks[currentIndex] === q.correct);
+                    feedbackBlock.style.display = 'block';
+                    feedbackBlock.className = `feedback-block ${wasCorrect ? 'good' : 'bad'}`;
+                    fbTitle.innerText = wasCorrect ? '✅ ДҰРЫС!' : '❌ ҚАТЕ!';
+                    fbDesc.innerText = q.why;
+                } else {
+                    feedbackBlock.style.display = 'none';
+                }
 
-  // State
-  let idx = 0;
-  let score = 0;
-  const picked = Array(questions.length).fill(null);
-  const checked = Array(questions.length).fill(false);
+                // radio listeners
+                document.querySelectorAll('.answer-item input[type="radio"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        if (answered[currentIndex]) return;
+                        const val = parseInt(e.target.value);
+                        userPicks[currentIndex] = val;
+                        answered[currentIndex] = true;
+                        if (val === q.correct) score += 1;
+                        renderQuestion();
+                        updateProgress();
+                        nextBtn.disabled = false;
+                    });
+                });
 
-  function setScreen(activeEl){
-    for(const el of [start, quiz, result]){
-      el.classList.remove('active','enter');
-      el.style.display = 'none';
-    }
-    activeEl.style.display = 'block';
-    activeEl.classList.add('active');
-    requestAnimationFrame(() => activeEl.classList.add('enter'));
-  }
+                prevBtn.disabled = (currentIndex === 0);
+                nextBtn.disabled = !answered[currentIndex];
+                nextBtn.innerText = (currentIndex === questions.length - 1) ? 'НОТИЖЕ →' : 'КЕЛЕСІ →';
+                updateProgress();
+            }
 
-  function updateTop(){
-    qnum.textContent = Math.min(idx+1, questions.length);
-    pts.textContent = score;
-    const pct = (Math.min(idx, questions.length) / questions.length) * 100;
-    bar.style.width = `${pct}%`;
-  }
+            function showResult() {
+                const total = questions.length;
+                const percent = Math.round((score / total) * 100);
+                scoreFraction.innerText = `${score}/${total}`;
+                const deg = (score / total) * 360;
+                scoreRing.style.background = `conic-gradient(#00ffcc 0deg, #ff3a7a ${deg}deg, #1e1a2f ${deg}deg)`;
 
-  function renderQuestion(){
-    updateTop();
-    const q = questions[idx];
-    questionTitle.textContent = q.title;
-    questionSub.textContent = q.sub || '';
-    if(q.code){
-      codeBlock.style.display = 'block';
-      codeBlock.textContent = q.code;
-    }else{
-      codeBlock.style.display = 'none';
-      codeBlock.textContent = '';
-    }
+                let title, desc;
+                if (percent >= 80) { title = 'СЕН ТУҒАН КӨШБАСШЫ!'; desc = 'Ұжымды сезесің, лидерлік қаныңда.'; }
+                else if (percent >= 60) { title = 'ЖАҚСЫ, БІРАҚ ӘЛЕ БОЛМАДЫ'; desc = 'Бірнеше нәрсені жетілдір.'; }
+                else { title = 'ҚАЙТА ОҚЫ, БРАТ'; desc = 'Теория керек, бірақ сен түзелесің.'; }
 
-    answersEl.innerHTML = '';
-    feedback.style.display = 'none';
-    feedback.classList.remove('good','bad');
+                resultTitle.innerText = title;
+                resultDesc.innerText = desc;
+                showScreen(resultScreen);
+            }
 
-    const chosen = picked[idx];
+            startBtn.addEventListener('click', () => {
+                currentIndex = 0; score = 0; userPicks.fill(null); answered.fill(false);
+                showScreen(quizScreen);
+                renderQuestion();
+            });
 
-    q.options.forEach((text, optIndex) => {
-      const label = document.createElement('label');
-      label.className = 'ans';
-      const radio = document.createElement('input');
-      radio.type = 'radio';
-      radio.name = 'opt';
-      radio.value = optIndex;
-      radio.checked = (chosen === optIndex);
-      radio.disabled = checked[idx];
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderQuestion();
+                }
+            });
 
-      const span = document.createElement('div');
-      span.textContent = text;
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex === questions.length - 1) {
+                    showResult();
+                } else {
+                    currentIndex++;
+                    renderQuestion();
+                }
+            });
 
-      label.appendChild(radio);
-      label.appendChild(span);
+            reviewBtn.addEventListener('click', () => {
+                currentIndex = 0;
+                showScreen(quizScreen);
+                renderQuestion();
+            });
 
-      label.addEventListener('click', (e) => {
-        if(checked[idx]) return;
-        picked[idx] = optIndex;
-        // enable Next only after pick
-        nextBtn.disabled = false;
+            restartBtn.addEventListener('click', () => {
+                currentIndex = 0; score = 0; userPicks.fill(null); answered.fill(false);
+                showScreen(quizScreen);
+                renderQuestion();
+            });
 
-        // lock in answer immediately
-        checked[idx] = true;
-
-        // score update
-        const wasCorrect = (optIndex === q.correct);
-        if(wasCorrect) score += 1;
-
-        // show feedback & paint answers
-        showFeedback(wasCorrect, q.why);
-        paintAnswers();
-
-        // update UI
-        pts.textContent = score;
-      });
-
-      answersEl.appendChild(label);
-    });
-
-    // If already answered before (review)
-    if(checked[idx]){
-      nextBtn.disabled = false;
-      showFeedback(picked[idx] === q.correct, q.why);
-      paintAnswers();
-    }else{
-      nextBtn.disabled = (picked[idx] === null);
-    }
-
-    prevBtn.disabled = (idx === 0);
-    nextBtn.textContent = (idx === questions.length-1) ? "Нәтиже →" : "Келесі →";
-  }
-
-  function paintAnswers(){
-    const q = questions[idx];
-    const labels = [...answersEl.querySelectorAll('.ans')];
-    labels.forEach((lab, i) => {
-      lab.classList.add('disabled');
-      const inp = lab.querySelector('input');
-      inp.disabled = true;
-
-      if(i === q.correct) lab.classList.add('correct');
-      if(picked[idx] === i && i !== q.correct) lab.classList.add('wrong');
-    });
-  }
-
-  function showFeedback(ok, why){
-    feedback.style.display = 'block';
-    feedback.classList.toggle('good', ok);
-    feedback.classList.toggle('bad', !ok);
-    fbTitle.textContent = ok ? "✅ Дұрыс!" : "❌ Қате!";
-    fbWhy.textContent = why || '';
-  }
-
-  function finish(){
-    // fill bar to 100
-    bar.style.width = "100%";
-    const total = questions.length;
-    const pct = Math.round((score / total) * 100);
-
-    scoreText.textContent = `${score}/${total}`;
-
-    // ring gradient
-    const deg = Math.round((score / total) * 360);
-    ring.style.background = `conic-gradient(var(--accent) 0deg, var(--good) ${deg}deg, rgba(255,255,255,.10) ${deg}deg)`;
-
-    let msg;
-    if(pct >= 90) msg = "🔥 Өте күшті! Тақырыпты жақсы түсінесің.";
-    else if(pct >= 70) msg = "✅ Жақсы! Аздап practice жасасаң, супер болады.";
-    else if(pct >= 50) msg = "🙂 Орташа. Қате шыққан сұрақтарды қайта қарап шық.";
-    else msg = "🧱 База әлсіздеу. Қайта қарап, мысалдармен бекітіп ал.";
-
-    resTitle.textContent = `Нәтиже: ${pct}%`;
-    resDesc.textContent = `${msg} (Балл: ${score}/${total})`;
-
-    setScreen(result);
-  }
-
-  // Events
-  startBtn.addEventListener('click', () => {
-    idx = 0;
-    score = 0;
-    picked.fill(null);
-    checked.fill(false);
-    pts.textContent = "0";
-    bar.style.width = "0%";
-    setScreen(quiz);
-    renderQuestion();
-  });
-
-  prevBtn.addEventListener('click', () => {
-    if(idx > 0){
-      idx--;
-      renderQuestion();
-    }
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if(idx === questions.length - 1){
-      finish();
-      return;
-    }
-    idx++;
-    renderQuestion();
-  });
-
-  restartBtn.addEventListener('click', () => {
-    idx = 0;
-    score = 0;
-    picked.fill(null);
-    checked.fill(false);
-    pts.textContent = "0";
-    bar.style.width = "0%";
-    setScreen(quiz);
-    renderQuestion();
-  });
-
-  reviewBtn.addEventListener('click', () => {
-    idx = 0;
-    setScreen(quiz);
-    renderQuestion();
-  });
-
-  // Initial
-  setScreen(start);
-})();
-</script>
+            // бастапқы
+            showScreen(startScreen);
+        })();
+    </script>
 </body>
-
 </html>
-
-
-
-
